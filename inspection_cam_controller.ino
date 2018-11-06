@@ -1,6 +1,6 @@
 #include <Mouse.h>
 
-//#define LIVE
+#define LIVE
 
 #define TRUE 1
 #define FALSE 0
@@ -56,8 +56,6 @@ void setup() {
         pinMode(ledPins[i], OUTPUT);
         digitalWrite(ledPins[i], 1);
     }
-
-    digitalWrite(PIN_LED6C, 0);
 
     Mouse.begin();
 }
@@ -119,6 +117,25 @@ void set_mf()
 #endif
 }
 
+void set_mode(int mode)
+{
+    if (cur_mode == mode) {
+        return;
+    }
+
+    switch(mode) {
+        case MODE_MF:
+            set_mf();
+            break;
+
+        case MODE_AF:
+            set_af();
+            break;
+    }
+
+    cur_mode = mode;
+}
+
 void loop() {
     int keypadBitmap = pollKeypad();
 
@@ -132,9 +149,9 @@ void loop() {
     }
 
     if (keypadBitmap  & KEY_CLICK_FOCUS) {
-        cur_mode = MODE_MF;
+        set_mode(MODE_AF);
     } else {
-        cur_mode = global_mode;
+        set_mode(global_mode);
     }
 
     if (global_mode == MODE_AF) {
@@ -143,7 +160,13 @@ void loop() {
         digitalWrite(PIN_LED6C, 1);
     }
 
-    // still need to enact cur_mode...
+    /*
+    if (cur_mode == MODE_AF) {
+        digitalWrite(PIN_LED2C, 0);
+    } else {
+        digitalWrite(PIN_LED2C, 1);
+    }
+    */
 
     lastKeypadBitmap = keypadBitmap;
 }
